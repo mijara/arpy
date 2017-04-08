@@ -32,3 +32,32 @@ Create route for ideas_put: /api/ideas/<pk>/
 ```
 
 Done!
+
+## Using custom actions
+
+Obtaining a range of markers:
+
+```python
+import restpy
+
+
+class Markers(restpy.Resource):
+    def on_create(self):
+        self.register(self.near, 'POST')
+
+    def near(self, body):
+        lat, lng, delta = body['lat'], body['lng'], body['delta']
+
+        def selector(marker):
+            d_lng = marker['lng'] - lng
+            d_lat = marker['lat'] - lat
+            return (d_lng * d_lng + d_lat * d_lat) < delta * delta
+
+        return self.objects.filter(selector)
+
+
+if __name__ == '__main__':
+    app = restpy.App('api')
+    app.add_resource(Markers)
+    app.run()
+```
