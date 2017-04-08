@@ -107,7 +107,7 @@ class App(object):
             'message': message
         }), mimetype='application/json', status=404)
 
-    def run(self, port=5000):
-        self.app.run(port=port, threaded=True)
+    def run(self, host='127.0.0.1', port=5000):
+        self.app.run(host=host, port=port, threaded=True)
 
         UnQLiteQueryObject.db.close()
