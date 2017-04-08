@@ -25,7 +25,12 @@ class Resource(object):
         route = self.app.route_factory.create_route(route)
 
         def wrapper():
-            response = endpoint(flask.request.get_json())
+            if method == 'GET':
+                params = flask.request.args
+            else:
+                params = flask.request.get_json()
+
+            response = endpoint(params)
 
             if isinstance(response, GeneratorType):
                 response = list(response)
@@ -35,26 +40,36 @@ class Resource(object):
         self.app._add_route(route, wrapper, endpoint.__name__, method)
 
     def list(self):
-        # GET <resource>/ - returns a list of resources.
+        """
+        GET <resource>/ - returns a list of resources.
+        """
         return self.objects.all()
 
     def post(self, body):
-        # POST <resource>/ - create a new resource and returns it.
+        """
+        POST <resource>/ - create a new resource and returns it.
+        """
         return self.objects.create(body)
 
     def get(self, pk):
-        # GET <resource>/:pk/ - returns a single resource.
+        """
+        GET <resource>/:pk/ - returns a single resource.
+        """
         obj = self.objects.get(pk)
         if obj is None:
             raise Error404()
         return obj
 
     def delete(self, pk):
-        # DELETE <resource>/:pk/ - delete a resource.
+        """
+        DELETE <resource>/:pk/ - delete a resource.
+        """
         return self.objects.delete(pk)
 
     def put(self, pk, body):
-        # PUT <resource>/:pk/ - updates a resource.
+        """
+        PUT <resource>/:pk/ - updates a resource.
+        """
         return self.objects.update(pk, body)
 
     def get_name(self):
