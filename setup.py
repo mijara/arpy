@@ -12,7 +12,6 @@ setup(name='ezrpy',
       install_requires=[
           'flask',
           'flask_cors',
-          'cython',
           'unqlite',
       ],
       )
