@@ -1,7 +1,7 @@
-Restpy
+Ezrpy
 ======
 
-Simple REST Python library for prototypes.
+Automatic REST Python library for prototypes.
 
 ## Example of usage
 
@@ -9,11 +9,11 @@ Define an API for markers:
 
 ```python
 # markers.py
-import restpy
+import ezrpy
 
 
 if __name__ == '__main__':
-    app = restpy.App('api')
+    app = ezrpy.App('api')
     markers = app.add_resource('markers')
     app.run()
 
@@ -38,7 +38,7 @@ Done!
 Obtaining a range of markers:
 
 ```python
-import restpy
+import ezrpy
 
 
 class Markers(restpy.Resource):
@@ -57,7 +57,7 @@ class Markers(restpy.Resource):
 
 
 if __name__ == '__main__':
-    app = restpy.App('api')
+    app = ezrpy.App('api')
     app.add_resource(Markers)
     app.run()
 ```
