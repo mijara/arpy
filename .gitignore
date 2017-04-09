@@ -4,4 +4,5 @@ build/
 .idea/
 dist/
 MANIFEST
+ezrpy.egg-info/
 
