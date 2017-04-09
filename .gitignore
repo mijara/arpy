@@ -5,4 +5,5 @@ build/
 dist/
 MANIFEST
 ezrpy.egg-info/
-
+test.py
+db.unqlite
