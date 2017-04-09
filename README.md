@@ -3,7 +3,7 @@ Ezrpy
 
 Automatic REST Python library for prototypes.
 
-## install
+## Install
 
 *You must install Cython first, read the Dependencies section for more info.*
 
