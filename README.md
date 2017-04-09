@@ -3,6 +3,22 @@ Ezrpy
 
 Automatic REST Python library for prototypes.
 
+## Install
+
+*You must install Cython first, read the Dependencies section for more info.*
+
+Using pip:
+
+```
+pip install ezrpy
+```
+
+Setuptools:
+
+```
+python setup.py install
+```
+
 ## Example of usage
 
 Define an API for markers:
@@ -61,3 +77,18 @@ if __name__ == '__main__':
     app.add_resource(Markers)
     app.run()
 ```
+
+## Dependencies
+
+This package uses UnQLite for database storage, as this requires Cython to
+build, you must first install it with:
+
+```
+pip install cython
+```
+
+Other dependencies will be installed automatically with the installation script:
+
+- flask
+- flask_cors
+- unqlite
