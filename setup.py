@@ -9,6 +9,7 @@ setup(name='ezrpy',
       keywords=['rest', 'prototype', 'api'],
       url='https://github.com/mijara/ezrpy',
       packages=['ezrpy'],
+      scripts=['scripts/ezt'],
       install_requires=[
           'flask',
           'flask_cors',
