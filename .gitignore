@@ -7,3 +7,4 @@ MANIFEST
 ezrpy.egg-info/
 test.py
 db.unqlite
+db.unqlite_unqlite_journal

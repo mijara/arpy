@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(name='ezrpy',
-      version='0.1.4',
+      version='0.1.7',
       description='Automatic REST API for Prototypes',
       author='Marcelo Jara',
       author_email='marjara35@gmail.com',
@@ -13,5 +13,5 @@ setup(name='ezrpy',
           'flask',
           'flask_cors',
           'unqlite',
-      ],
-      )
+          'requests',
+      ])
