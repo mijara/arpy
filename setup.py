@@ -12,7 +12,6 @@ setup(name='ezrpy',
       scripts=['scripts/ezt'],
       install_requires=[
           'flask',
-          'flask_cors',
-          'unqlite',
+          'tinydb',
           'requests',
       ])

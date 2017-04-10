@@ -1,6 +1,5 @@
-from db import QueryObject, MemoryQueryObject, UnQLiteQueryObject
-from utils import *
-from error import Error404
+from .utils import *
+from .error import Error404
 import flask
 from types import GeneratorType
 
@@ -11,7 +10,7 @@ class Resource(object):
             self.__class__.__name__ = name
 
         self.app = app
-        self.objects = UnQLiteQueryObject(self.get_name())
+        self.objects = self.app.db.query_object(self.get_name())
 
     def on_create(self):
         pass

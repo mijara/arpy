@@ -1,103 +1,104 @@
-from unqlite import UnQLite
+from tinydb import TinyDB
+
+
+class Database(object):
+    def query_object(self, collection_name):
+        raise NotImplementedError()
 
 
 class QueryObject(object):
-    def __init__(self, collection_name):
-        self.collection_name = collection_name
-
     def all(self):
-        pass
+        """
+        Gets all documents in this collection.
 
-    def create(self, body):
-        pass
-
-    def get(self, pk):
-        pass
-
-    def delete(self, pk):
-        pass
-
-    def update(self, pk, body):
-        pass
-
-
-class MemoryQueryObject(QueryObject):
-    def __init__(self, collection_name):
-        super(MemoryQueryObject, self).__init__(collection_name)
-
-        self.objects = dict()
-        self.current_pk = 0
-
-    def all(self):
-        return self.objects.values()
-
-    def create(self, body):
-        if 'pk' in body:
-            # throw exception.
-            pass
-
-        body = self._assign_pk(body)
-        self.objects[self.current_pk] = body
-        self.current_pk += 1
-        return body
-
-    def get(self, pk):
-        if pk in self.objects:
-            return self.objects[pk]
-        return None
-
-    def delete(self, pk):
-        obj = self.get(pk)
-        del self.objects[pk]
-        return obj
-
-    def update(self, pk, body):
-        self.objects[pk].update(body)
-        return self.objects[pk]
-
-    def _assign_pk(self, body):
-        body = body.copy()
-        body['pk'] = self.current_pk
-        return body
-
-
-class UnQLiteQueryObject(QueryObject):
-    db = UnQLite('db.unqlite')
-
-    def __init__(self, collection_name):
-        super(UnQLiteQueryObject, self).__init__(collection_name)
-
-        self.collection = self.db.collection(self.collection_name)
-
-        # create if the collection does not exists.
-        self.collection.create()
-
-    def all(self):
-        return self.collection.all()
+        :return: a list of documents.
+        """
+        raise NotImplementedError()
 
     def create(self, body, pk=None):
         """
-        :param: pk pass a pk to create or update if it exists.
-        """
-        if pk is not None:
-            previous = self.collection[pk]
-            if previous is not None:
-                return self.update(pk, body)
+        Creates a new document, only if the pk does not exists.
 
-        pk = self.collection.store(body)
-        return self.get(pk)
+        :param pk: id to test if the document already exists, aborting if it
+                   does.
+        :param body: document to store.
+        :return: the stored document.
+        """
+        raise NotImplementedError()
 
     def get(self, pk):
-        return self.collection[pk]
+        """
+        Gets an specific document by id.
+
+        :param pk: id of the document to get.
+        :return: the document.
+        """
+        raise NotImplementedError()
 
     def delete(self, pk):
-        obj = self.get(pk)
-        self.collection.delete(pk)
-        return obj
+        """
+        Deletes an existing document.
+
+        :param pk: id of the document to delete.
+        :return: the deleted document.
+        """
+        raise NotImplementedError()
 
     def update(self, pk, body):
-        self.collection.update(pk, body)
+        """
+        Updates an existing document.
+
+        :param pk: document to update.
+        :param body: new document body.
+        :return: the new document.
+        """
+        raise NotImplementedError()
+
+
+class TinyBDDatabase(Database):
+    def __init__(self, path):
+        self.db = TinyDB(path)
+
+    def query_object(self, collection_name):
+        table = self.db.table(collection_name)
+
+        return TinyDBQueryObject(table)
+
+
+class TinyDBQueryObject(QueryObject):
+    def __init__(self, table):
+        self.table = table
+
+    def all(self):
+        docs = []
+        for raw_document in self.table.all():
+            document = dict(raw_document)
+            document['id'] = raw_document.eid
+            docs.append(document)
+        return docs
+
+    def get(self, pk):
+        raw_document = self.table.get(eid=pk)
+        document = dict(raw_document)
+        document['id'] = raw_document.eid
+        return document
+
+    def create(self, body, pk=None):
+        if pk is not None and self.table.contains(eids=[pk]):
+            return self.get(pk)
+
+        pk = self.table.insert(body)
+
+        # TODO: is this a performance concern?
         return self.get(pk)
 
-    def filter(self, condition):
-        return self.collection.filter(condition)
+    def update(self, pk, body):
+        pk = self.table.update(body, epks=[pk])
+
+        # TODO: is this a performance concern?
+        return self.get(pk)
+
+    def delete(self, pk):
+        document = self.get(pk)
+        self.table.remove(epks=[pk])
+        return document

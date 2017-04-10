@@ -3,9 +3,7 @@ build/
 .DS_Store
 .idea/
 dist/
-MANIFEST
 ezrpy.egg-info/
 test.py
-db.unqlite
-db.unqlite_unqlite_journal
+db.json
 venv/
