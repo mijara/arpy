@@ -5,8 +5,8 @@ import inspect
 from .handle import Resource
 from .route import RouteFactory
 from .utils import Logger
-from .error import Error404
-from .db import TinyBDDatabase
+from .error import RequestError
+from .db import TinyBDDatabase, Database
 
 
 class App(object):
@@ -46,13 +46,12 @@ class App(object):
             raise ValueError(
                 'Resource should be a subclass of Resource or a string')
 
-        self.routes[instance.get_name()] = [
-            self._inspect_list(instance),
-            self._inspect_post(instance),
-            self._inspect_get(instance),
-            self._inspect_delete(instance),
-            self._inspect_put(instance),
-        ]
+        self.routes[instance.get_name()] = self._inspect_list(instance)[1]
+
+        self._inspect_post(instance)
+        self._inspect_get(instance)
+        self._inspect_delete(instance)
+        self._inspect_put(instance)
 
         return instance
 
@@ -62,17 +61,23 @@ class App(object):
             # below for explanation.
             cb = endpoint
 
-            def endpoint():
-                return cb()
+            def endpoint(*args, **kwargs):
+                return cb(*args, **kwargs)
+
+        def wrapper(*args, **kwargs):
+            try:
+                return endpoint(*args, **kwargs)
+            except RequestError as e:
+                return self._response_error(e.status, e.message)
 
         if as_name is not None:
             # this is done to avoid flask's "View function mapping is
             # overwriting an existing endpoint function: endpoint" error.
             # but it requires that the function is not a an instance method.
-            endpoint.__name__ = as_name
-        self.app.route(route, methods=[method])(endpoint)
-        Logger.debug("Create route for %s: %s", endpoint.__name__, route)
-        return endpoint.__name__, route, method
+            wrapper.__name__ = as_name
+        self.app.route(route, methods=[method])(wrapper)
+        Logger.debug("Create route for %s: %s", wrapper.__name__, route)
+        return wrapper.__name__, route, method
 
     def _inspect_list(self, instance):
         route = self.route_factory.create_list(instance)
@@ -98,10 +103,7 @@ class App(object):
         name = instance.get_name()
 
         def endpoint(pk):
-            try:
-                return self._response_middleware(instance.get(int(pk)))
-            except Error404:
-                return self._response_error(404, 'Object not found')
+            return self._response_middleware(instance.get(int(pk)))
 
         return self._add_route(route, endpoint, '%s_get' % name, 'GET')
 

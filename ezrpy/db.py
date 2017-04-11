@@ -1,5 +1,7 @@
 from tinydb import TinyDB
 
+from ezrpy.error import RequestError
+
 
 class Database(object):
     def query_object(self, collection_name):
@@ -79,6 +81,9 @@ class TinyDBQueryObject(QueryObject):
 
     def get(self, pk):
         raw_document = self.table.get(eid=pk)
+        if raw_document is None:
+            raise RequestError(404, 'document not found: %d' % pk)
+
         document = dict(raw_document)
         document['id'] = raw_document.eid
         return document
@@ -93,12 +98,13 @@ class TinyDBQueryObject(QueryObject):
         return self.get(pk)
 
     def update(self, pk, body):
-        pk = self.table.update(body, epks=[pk])
+        pk = self.table.update(body, eids=[pk])
 
         # TODO: is this a performance concern?
         return self.get(pk)
 
     def delete(self, pk):
         document = self.get(pk)
-        self.table.remove(epks=[pk])
+
+        self.table.remove(eids=[pk])
         return document

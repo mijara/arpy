@@ -1,5 +1,5 @@
+from ezrpy.error import RequestError
 from .utils import *
-from .error import Error404
 import flask
 from types import GeneratorType
 
@@ -56,7 +56,7 @@ class Resource(object):
         """
         obj = self.objects.get(pk)
         if obj is None:
-            raise Error404()
+            raise RequestError(404, 'document not found: %s' % pk)
         return obj
 
     def delete(self, pk):
