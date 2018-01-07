@@ -6,7 +6,7 @@ from .handle import Resource
 from .route import RouteFactory
 from .utils import Logger
 from .error import RequestError
-from .db import TinyBDDatabase, Database
+from .db import TinyBDDatabase
 
 
 class App(object):
@@ -22,8 +22,6 @@ class App(object):
         self.db = None
         if db is None:
             self.db = TinyBDDatabase('db.json')
-
-        # flask_cors.CORS(self.app)
 
         self._create_index()
 
